@@ -1,0 +1,32 @@
+/* Center and space elements inside the container */
+.container {
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Style for input boxes */
+  .wide-box {
+    width: 200px;
+  }
+  
+  /* Time input container */
+  .time-inputs {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  /* Error message styling */
+  .error-message {
+    color: red;
+    font-weight: bold;
+  }
+  
+  /* Timestamp display styling */
+  .timestamp {
+    margin-top: 20px;
+    font-weight: bold;
+  }
+  
