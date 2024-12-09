@@ -1,75 +1,65 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../shared/material.module';
 
 @Component({
-  standalone: true,
   selector: 'app-date-time',
+  standalone: true,
+  imports: [ReactiveFormsModule, MaterialModule],
   templateUrl: './date-time.component.html',
   styleUrls: ['./date-time.component.css'],
-  imports: [MaterialModule, FormsModule],
 })
-export class DateTimeComponent {
-  selectedDate: Date = new Date(); // Initialize to current date
-  hours: number = this.selectedDate.getHours() % 12 || 12; // Convert to 12-hour format
-  minutes: number = this.selectedDate.getMinutes(); // Current minutes
-  amPm: 'AM' | 'PM' = this.selectedDate.getHours() >= 12 ? 'PM' : 'AM'; // Determine AM/PM
-  seconds: number = this.selectedDate.getSeconds(); // Hidden field with default value
-  milliseconds: number = this.selectedDate.getMilliseconds(); // Hidden field with default value
+export class DateTimeComponent implements OnInit {
+  editForm: FormGroup;
 
   @Output() timestampChange = new EventEmitter<number>(); // Emit the UTC timestamp
 
-  saveTimestamp(): void {
-    // Adjust hours based on AM/PM
-    let adjustedHours = this.hours;
-    if (this.amPm === 'PM' && this.hours !== 12) {
+  constructor() {
+    const now = new Date();
+
+    this.editForm = new FormGroup({
+      date: new FormControl(new Date(now.getFullYear(), now.getMonth(), now.getDate())),
+      hours: new FormControl(now.getHours() % 12 || 12), // Convert to 12-hour format
+      minutes: new FormControl(now.getMinutes()),
+      amPm: new FormControl(now.getHours() >= 12 ? 'PM' : 'AM'),
+      seconds: new FormControl(now.getSeconds()), // Hidden default value
+      milliseconds: new FormControl(now.getMilliseconds()), // Hidden default value
+    });
+  }
+
+  ngOnInit(): void {
+    // Listen to changes on relevant fields and reset seconds and milliseconds
+    this.editForm.get('date')?.valueChanges.subscribe(() => this.resetTime());
+    this.editForm.get('hours')?.valueChanges.subscribe(() => this.resetTime());
+    this.editForm.get('minutes')?.valueChanges.subscribe(() => this.resetTime());
+    this.editForm.get('amPm')?.valueChanges.subscribe(() => this.resetTime());
+  }
+
+  resetTime(): void {
+    this.editForm.patchValue({
+      seconds: 0,
+      milliseconds: 0,
+    });
+    this.updateTimestamp();
+  }
+
+  updateTimestamp(): void {
+    const { date, hours, minutes, amPm, seconds, milliseconds } = this.editForm.value;
+
+    let adjustedHours = hours;
+    if (amPm === 'PM' && hours !== 12) {
       adjustedHours += 12;
-    } else if (this.amPm === 'AM' && this.hours === 12) {
+    } else if (amPm === 'AM' && hours === 12) {
       adjustedHours = 0;
     }
 
-    // Combine the date and time
-    const combinedDateTime = new Date(this.selectedDate);
+    const combinedDateTime = new Date(date);
     combinedDateTime.setHours(adjustedHours);
-    combinedDateTime.setMinutes(this.minutes);
-    combinedDateTime.setSeconds(this.seconds);
-    combinedDateTime.setMilliseconds(this.milliseconds);
+    combinedDateTime.setMinutes(minutes);
+    combinedDateTime.setSeconds(seconds);
+    combinedDateTime.setMilliseconds(milliseconds);
 
-    // Emit the UTC timestamp
     const timestamp = combinedDateTime.getTime();
     this.timestampChange.emit(timestamp);
-  }
-
-   // Emit timestamp whenever fields are updated
-   updateTimestamp(): void {
-    // Reset seconds and milliseconds when the fields are changed
-    this.seconds = 0;
-    this.milliseconds = 0;
-
-    let adjustedHours = this.hours;
-    if (this.amPm === 'PM' && this.hours !== 12) {
-      adjustedHours += 12;
-    } else if (this.amPm === 'AM' && this.hours === 12) {
-      adjustedHours = 0;
-    }
-
-    // Combine the date and time
-    const combinedDateTime = new Date(this.selectedDate);
-    combinedDateTime.setHours(adjustedHours);
-    combinedDateTime.setMinutes(this.minutes);
-    combinedDateTime.setSeconds(this.seconds);
-    combinedDateTime.setMilliseconds(this.milliseconds);
-
-    // Emit the UTC timestamp
-    const timestamp = combinedDateTime.getTime();
-    this.timestampChange.emit(timestamp);
-  }
-
-  onDateChange(): void {
-    this.updateTimestamp(); // Reset seconds and milliseconds and emit the timestamp
-  }
-
-  onTimeChange(): void {
-    this.updateTimestamp(); // Reset seconds and milliseconds and emit the timestamp
   }
 }

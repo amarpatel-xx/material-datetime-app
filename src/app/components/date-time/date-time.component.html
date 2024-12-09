@@ -1,12 +1,12 @@
-<div class="date-time-container">
+<form [formGroup]="editForm" class="date-time-container">
     <!-- Time Inputs -->
     <div class="date-time-inputs">
         <!-- Date Picker -->
         <mat-form-field appearance="outline" class="wide-box">
-        <mat-label>Select Date</mat-label>
-        <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate"  (ngModelChange)="onDateChange()"/>
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+            <mat-label>Select Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date" />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
   
         <!-- Hours -->
@@ -15,8 +15,7 @@
             <input
             matInput
             type="number"
-            [(ngModel)]="hours"
-            (ngModelChange)="onTimeChange()"
+            formControlName="hours"
             placeholder="HH"
             min="1"
             max="12"
@@ -29,8 +28,7 @@
             <input
             matInput
             type="number"
-            [(ngModel)]="minutes"
-            (ngModelChange)="onTimeChange()"
+            formControlName="minutes"
             placeholder="MM"
             min="0"
             max="59"
@@ -39,7 +37,7 @@
     
         <!-- AM/PM Selector -->
         <mat-form-field appearance="outline" class="wide-box">
-            <mat-select [(ngModel)]="amPm" (selectionChange)="onTimeChange()">
+            <mat-select formControlName="amPm">
             <mat-option value="AM">AM</mat-option>
             <mat-option value="PM">PM</mat-option>
             </mat-select>
@@ -47,12 +45,12 @@
     </div>
   
     <!-- Hidden Fields for Seconds and Milliseconds -->
-    <input type="hidden" [(ngModel)]="seconds" />
-    <input type="hidden" [(ngModel)]="milliseconds" />
+    <input type="hidden" formControlName="seconds" />
+    <input type="hidden" formControlName="milliseconds" />
   
     <!-- Submit Button -->
-    <button mat-raised-button color="accent" (click)="saveTimestamp()">
+    <button mat-raised-button color="accent" (click)="updateTimestamp()">
       Save Timestamp
     </button>
-  </div>
+  </form>
   
