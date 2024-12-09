@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MaterialModule } from './shared/material.module';
-import { DateTimeComponent } from './component/date-time/date-time.component';
+import { DateTimeComponent } from './components/date-time/date-time.component';
 
 @Component({
   standalone: true,
